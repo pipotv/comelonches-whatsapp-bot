@@ -8,6 +8,10 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Endpoint de Ping y Healthcheck para mantener el servidor despierto 24/7
+  app.get('/ping', (req, res) => res.status(200).send('pong 🏓 - Comelonches Bot Activo'));
+  app.get('/healthz', (req, res) => res.status(200).json({ status: 'ok', uptime: process.uptime() }));
+
   // Endpoint de estado JSON
   app.get('/api/status', (req, res) => {
     res.json({
@@ -409,4 +413,30 @@ export function createServer() {
   });
 
   return app;
+}
+
+/**
+ * Función para mantener despierto el contenedor en Render automáticamente cada 8 minutos
+ */
+export function startSelfPing(customUrl) {
+  const url = customUrl || process.env.RENDER_EXTERNAL_URL || process.env.PING_URL;
+  if (!url) {
+    console.log('ℹ️ [Self-Ping] No hay URL externa configurada para self-ping (modo local).');
+    return;
+  }
+
+  const pingEndpoint = url.endsWith('/') ? `${url}ping` : `${url}/ping`;
+  console.log(`⏱️ [Self-Ping] Activado cada 8 minutos hacia: ${pingEndpoint}`);
+
+  // Ping cada 8 minutos (Render entra en reposo a los 15 minutos)
+  setInterval(async () => {
+    try {
+      const res = await fetch(pingEndpoint);
+      if (res.ok) {
+        console.log(`💓 [Self-Ping] Ping exitoso a ${pingEndpoint} - Servidor activo.`);
+      }
+    } catch (err) {
+      console.warn(`⚠️ [Self-Ping] Error en ping: ${err.message}`);
+    }
+  }, 8 * 60 * 1000);
 }
