@@ -14,8 +14,13 @@ const AVAILABLE_MODELS = [
 ];
 
 let genAI = null;
-if (config.geminiApiKey && config.geminiApiKey !== 'tu_gemini_api_key_aqui') {
-  genAI = new GoogleGenerativeAI(config.geminiApiKey);
+
+function getGenAI() {
+  const key = config.geminiApiKey || process.env.GEMINI_API_KEY;
+  if (!genAI && key && key !== 'tu_gemini_api_key_aqui') {
+    genAI = new GoogleGenerativeAI(key);
+  }
+  return genAI;
 }
 
 /**
@@ -48,7 +53,12 @@ Responde de forma clara, natural y concisa (ideal para WhatsApp). Usa negritas e
 3. Recuerda siempre que NO hay servicio a domicilio, pero pueden ordenar en línea para recoger en sucursal en www.comelonches.com.
 `;
 
-  const model = genAI.getGenerativeModel({
+  const ai = getGenAI();
+  if (!ai) {
+    throw new Error('Google Generative AI no ha sido inicializado. Verifica tu API Key.');
+  }
+
+  const model = ai.getGenerativeModel({
     model: modelName,
     systemInstruction: systemInstruction,
     generationConfig: {
@@ -77,8 +87,9 @@ Responde de forma clara, natural y concisa (ideal para WhatsApp). Usa negritas e
  * @returns {Promise<string>} - Respuesta generada por la IA
  */
 export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
-  if (!config.geminiApiKey || config.geminiApiKey === 'tu_gemini_api_key_aqui' || !genAI) {
-    console.warn('⚠️ [Gemini AI] GEMINI_API_KEY no está configurada en .env.');
+  const ai = getGenAI();
+  if (!ai) {
+    console.warn('⚠️ [Gemini AI] GEMINI_API_KEY no está configurada.');
     return (
       `¡Hola ${userName}! 🥖 Gracias por comunicarte con *${config.business.name}*.\n\n` +
       `📌 Consulta nuestro menú y haz tu pedido aquí: ${config.business.website}\n` +
@@ -108,7 +119,7 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
 
   // Si todos los modelos de chat fallan, intentar llamada directa simple
   try {
-    const fallbackModel = genAI.getGenerativeModel({ model: AVAILABLE_MODELS[0] });
+    const fallbackModel = ai.getGenerativeModel({ model: AVAILABLE_MODELS[0] });
     const prompt = `Actúa como Lonchy de Comelonches. El cliente ${userName} dice: "${userMessage}". Responde brevemente con datos de Comelonches (horario: Martes a Domingo 12-6pm, ubicación: Blvd. de la Senda 381 local 14, menú en www.comelonches.com, sin servicio a domicilio):`;
     const simpleResult = await fallbackModel.generateContent(prompt);
     return simpleResult.response.text().trim();
