@@ -7,6 +7,7 @@ import pino from 'pino';
 import qrcodeTerminal from 'qrcode-terminal';
 import QRCode from 'qrcode';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getAiResponse } from './gemini.js';
 import { config } from './config.js';
@@ -95,10 +96,20 @@ export async function startWhatsAppBot() {
 
         addBotLog(`⚠️ Conexión cerrada. Código: ${statusCode}. Reconectando: ${shouldReconnect}`);
 
-        if (shouldReconnect) {
+        if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
+          addBotLog('🔄 Sesión desvinculada. Limpiando credenciales y generando nuevo QR automáticamente...');
+          try {
+            if (fs.existsSync(AUTH_FOLDER)) {
+              fs.rmSync(AUTH_FOLDER, { recursive: true, force: true });
+            }
+          } catch (e) {
+            console.error('Error limpiando auth folder:', e);
+          }
+          setTimeout(() => startWhatsAppBot(), 2000);
+        } else if (shouldReconnect) {
           setTimeout(() => startWhatsAppBot(), 3000);
         } else {
-          addBotLog('❌ Sesión cerrada permanentemente. Por favor reinicia para generar un nuevo QR.');
+          setTimeout(() => startWhatsAppBot(), 5000);
         }
       } else if (connection === 'open') {
         botState.status = 'connected';
