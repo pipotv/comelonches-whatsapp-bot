@@ -22,19 +22,21 @@ export function createServer() {
       messagesCount: botState.messagesCount,
       lastActivity: botState.lastActivity,
       logs: botState.logs,
+      provider: config.aiProvider,
       geminiConfigured: !!(config.geminiApiKey && config.geminiApiKey !== 'tu_gemini_api_key_aqui'),
+      openaiConfigured: !!(config.openaiApiKey && config.openaiApiKey.startsWith('sk-')),
     });
   });
 
-  // Endpoint para guardar o actualizar la API Key de Gemini
+  // Endpoint para guardar o actualizar la API Key de Gemini o OpenAI
   app.post('/api/config/gemini', (req, res) => {
-    const { apiKey } = req.body;
+    const { apiKey, provider } = req.body;
     if (!apiKey) {
       return res.status(400).json({ error: 'La API Key no puede estar vacía' });
     }
-    const success = reloadApiKey(apiKey.trim());
+    const success = reloadApiKey(apiKey.trim(), provider);
     if (success) {
-      addBotLog('🔑 API Key de Gemini actualizada desde el panel web.');
+      addBotLog(`🔑 API Key de IA actualizada correctamente.`);
       return res.json({ success: true, message: 'API Key actualizada exitosamente' });
     }
     res.status(400).json({ error: 'Clave inválida' });
@@ -300,13 +302,19 @@ export function createServer() {
 
     <!-- Columna Derecha: Configuración y Logs -->
     <div class="card">
-      <div class="card-title">⚙️ Configuración de Google Gemini</div>
+      <div class="card-title">⚙️ Proveedor de Inteligencia Artificial</div>
       
       <div class="input-group">
-        <label for="geminiKey">API Key de Google Gemini (Gratis en AI Studio)</label>
-        <input type="password" id="geminiKey" placeholder="Pega tu clave AIzaSy..." />
+        <label for="aiProviderSelect">Selecciona el Cerebro de IA:</label>
+        <select id="aiProviderSelect" style="width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; color: #fff; font-size: 0.95rem; margin-bottom: 12px;">
+          <option value="gemini">Google Gemini (100% Gratis - Recomendado)</option>
+          <option value="openai">OpenAI ChatGPT (gpt-4o-mini)</option>
+        </select>
+        
+        <label for="geminiKey">API Key:</label>
+        <input type="password" id="geminiKey" placeholder="Pega tu clave (AIzaSy... o sk-...)" />
       </div>
-      <button class="btn" onclick="saveGeminiKey()">Guardar Clave</button>
+      <button class="btn" onclick="saveApiKey()">Guardar Clave</button>
       <span id="keyStatus" style="font-size: 0.85rem; margin-left: 10px; color: var(--success);"></span>
 
       <div class="test-box">
@@ -360,8 +368,9 @@ export function createServer() {
       }
     }
 
-    async function saveGeminiKey() {
+    async function saveApiKey() {
       const key = document.getElementById('geminiKey').value;
+      const provider = document.getElementById('aiProviderSelect').value;
       const statusSpan = document.getElementById('keyStatus');
       if (!key) return alert('Por favor escribe tu API Key');
 
@@ -369,11 +378,11 @@ export function createServer() {
         const res = await fetch('/api/config/gemini', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey: key })
+          body: JSON.stringify({ apiKey: key, provider })
         });
         const data = await res.json();
         if (data.success) {
-          statusSpan.textContent = '✅ Guardada correctamente';
+          statusSpan.textContent = '✅ Guardada correctamente (' + provider.toUpperCase() + ')';
           setTimeout(() => { statusSpan.textContent = ''; }, 4000);
         } else {
           alert(data.error || 'Error al guardar');
@@ -389,7 +398,7 @@ export function createServer() {
       if (!question) return;
 
       replyBox.style.display = 'block';
-      replyBox.textContent = 'Pensando respuesta con Gemini...';
+      replyBox.textContent = 'Pensando respuesta con la IA...';
 
       try {
         const res = await fetch('/api/test-ai', {

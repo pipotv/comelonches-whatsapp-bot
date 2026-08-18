@@ -3,6 +3,8 @@ dotenv.config();
 
 export const config = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+  aiProvider: process.env.AI_PROVIDER || 'auto', // 'openai', 'gemini', 'auto'
   port: parseInt(process.env.PORT || '3000', 10),
   business: {
     name: process.env.BUSINESS_NAME || 'Comelonches',
