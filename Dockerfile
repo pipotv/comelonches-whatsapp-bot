@@ -1,5 +1,5 @@
-# Utilizar Node.js versión 20 LTS liviana
-FROM node:20-slim
+# Utilizar Node.js versión 22 LTS liviana
+FROM node:22-slim
 
 # Directorio de trabajo
 WORKDIR /app
