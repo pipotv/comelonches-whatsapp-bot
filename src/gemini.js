@@ -233,10 +233,45 @@ async function getGeminiResponse(userId, userMessage, userName = 'Cliente') {
   return null;
 }
 
+function isPureGreeting(text) {
+  const normalized = text
+    .toLowerCase()
+    .trim()
+    .replace(/[!¡?¿.,]/g, '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, ''); // Quita acentos (dias -> dias)
+    
+  const greetingPatterns = [
+    'hola', 'buenos dias', 'buen dia', 'buenas tardes', 'buenas noches',
+    'hola buenos dias', 'hola buen dia', 'hola buenas tardes', 'hola buenas noches',
+    'hola buenas', 'buenas', 'que tal', 'hola que tal', 'hey', 'saludos', 'hola lonchy'
+  ];
+  return greetingPatterns.includes(normalized);
+}
+
 /**
  * Función principal para generar respuesta de IA (admite OpenAI y Gemini con fallback)
  */
 export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
+  const cleanMsg = (userMessage || '').trim();
+
+  // Si es un saludo puro, siempre entregar la bienvenida completa, cálida y profesional
+  if (isPureGreeting(cleanMsg)) {
+    // Reiniciar historial para empezar fresco
+    chatHistories.delete(userId);
+    const greetingReply = (
+      `¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!\n\n` +
+      `Estoy aquí para ayudarte con nuestro menú y resolver todas tus dudas. 😊\n\n` +
+      `Para que tu pedido entre directo a nuestro sistema de cocina y lo tengamos listo calientito en cuanto llegues, te recomendamos ordenar en línea desde nuestra página:\n` +
+      `👉 *www.comelonches.com*\n\n` +
+      `¿En qué puedo ayudarte hoy?`
+    );
+    // Registrar en historial
+    getUserHistory(userId).push({ role: 'user', content: cleanMsg });
+    getUserHistory(userId).push({ role: 'assistant', content: greetingReply });
+    return greetingReply;
+  }
+
   const hasOpenAi = !!(config.openaiApiKey && config.openaiApiKey.startsWith('sk-'));
   const hasGemini = !!(config.geminiApiKey && config.geminiApiKey !== 'tu_gemini_api_key_aqui');
 
@@ -253,7 +288,7 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
   // 1. Si el usuario configuró OpenAI o modo auto con OpenAI
   if (hasOpenAi && (config.aiProvider === 'openai' || config.aiProvider === 'auto')) {
     try {
-      const reply = await getOpenAiResponse(userId, userMessage, userName);
+      const reply = await getOpenAiResponse(userId, cleanMsg, userName);
       if (reply) return reply;
     } catch (err) {
       console.error('Error con OpenAI:', err.message);
@@ -263,7 +298,7 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
   // 2. Usar Google Gemini
   if (hasGemini) {
     try {
-      const reply = await getGeminiResponse(userId, userMessage, userName);
+      const reply = await getGeminiResponse(userId, cleanMsg, userName);
       if (reply) return reply;
     } catch (err) {
       console.error('Error con Gemini:', err.message);
