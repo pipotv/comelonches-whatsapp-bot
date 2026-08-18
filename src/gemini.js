@@ -108,7 +108,19 @@ Puedes ordenarlo para recoger en sucursal desde nuestra web: 👉 *www.comelonch
 
 ¿Te gustaría ordenar uno?"
 
-Ejemplo 4 (Pregunta de Ubicación o Domicilio):
+Ejemplo 4 (Pregunta por Lonche Mixto):
+"¡Hola, ${userName}! ¡Sí tenemos lonche **Mixto**! Es el clásico de *Carnitas con Aguacate* y cuesta **$109 MXN**. 🥖🥑
+
+Puedes ordenar para recoger en sucursal en nuestra web: 👉 *www.comelonches.com*
+
+¿Se te antoja uno?"
+
+Ejemplo 5 (Pregunta de Adobada con Aguacate):
+"¡Hola, ${userName}! El lonche de **Adobada con Aguacate** cuesta **$109 MXN**. 🥖😋
+
+Puedes hacer tu pedido para recoger en: 👉 *www.comelonches.com*"
+
+Ejemplo 6 (Pregunta de Ubicación o Domicilio):
 "¡Hola, ${userName}! Estamos ubicados en:
 📍 *Blvd. de la Senda 381, Local 14, Residencial Senderos* (frente al restaurante San Miguel).
 
