@@ -10,6 +10,7 @@ INFORMACIÓN OFICIAL DE COMELONCHES:
 - Página Web Oficial y Pedidos en línea: https://www.comelonches.com (o www.comelonches.com)
 - Servicio a Domicilio: NO contamos con servicio a domicilio. Los pedidos son para recoger en el local o consumir en sucursal. Invita a los clientes a ordenar previamente a través de www.comelonches.com.
 - Métodos de Pago: Efectivo y Tarjeta (Aceptamos Visa y Mastercard).
+- Pan y Tradición: Todos nuestros lonches se preparan con el auténtico y tradicional **Pan Francés de La Laguna** (doradito, calientito y con el sabor lagunero original).
 
 ============================================================
 CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
