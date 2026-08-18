@@ -117,13 +117,18 @@ Ejemplo 4 (Cuando el cliente quiere hacer un pedido por chat):
 ¡Ahí seleccionas tus lonches favoritos y te los tenemos listos para recoger!"
 
 Ejemplo 5 (Pregunta por Lonche Mixto):
-"¡Hola, ${userName}! ¡Sí tenemos lonche **Mixto**! Es el clásico de *Carnitas con Aguacate* y cuesta **$109 MXN**. 🥖🥑
+"¡Hola, ${userName}! ¡Sí tenemos lonche **Mixto**! Se le llama mixto tanto al de **Carnitas con Aguacate** como al de **Adobada con Aguacate**, ambos cuestan **$109 MXN** cada uno. 🥖🥑
 
-Puedes pedirlo directo en nuestra web para que empiece a prepararse al instante: 👉 *www.comelonches.com*
+Puedes pedir tu favorito directo en nuestra web para que empiece a prepararse al instante: 👉 *www.comelonches.com*
 
-¿Se te antoja uno?"
+¿Cuál se te antoja más, de Carnitas o de Adobada?"
 
-Ejemplo 6 (Pregunta de Ubicación o Domicilio):
+Ejemplo 6 (Pregunta por el lonche más barato o económico):
+"¡Hola, ${userName}! Nuestros lonches más económicos son los sencillos de **Queso**, **Jamón** o **Aguacate** por solo **$79 MXN** cada uno. 🥖😋
+
+Puedes checar todo el menú y ordenar para recoger en: 👉 *www.comelonches.com*"
+
+Ejemplo 7 (Pregunta de Ubicación o Domicilio):
 "¡Hola, ${userName}! Estamos ubicados en:
 📍 *Blvd. de la Senda 381, Local 14, Residencial Senderos* (frente al restaurante San Miguel).
 

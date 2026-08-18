@@ -22,12 +22,12 @@ CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
 - VARADERO ($129 MXN): Carnitas, Jamón, Queso y Aguacate.
 - PECHUGA A LA PLANCHA ($129 MXN): Pechuga de pollo a la plancha, Queso y Aguacate.
 
-🥖 2. LONCHES COMBINACIONES Y MIXTO:
-- MIXTO / LONCHE MIXTO ($109 MXN): ¡Sí tenemos! Es el delicioso lonche de Carnitas con Aguacate. Precio: $109 MXN.
+🥖 2. LONCHES COMBINACIONES Y MIXTO ($109 MXN):
+- MIXTO / LONCHE MIXTO ($109 MXN): ¡Sí tenemos! Se le llama "Mixto" tanto al de **Carnitas con Aguacate** como al de **Adobada con Aguacate** (cualquiera de los dos cuesta $109 MXN). Puedes aclararle al cliente que puede elegirlo de Carnitas o de Adobada por $109 MXN.
 - Carnitas & Aguacate (Mixto): $109 MXN
+- Adobada & Aguacate (Mixto): $109 MXN
 - Carnitas & Queso: $109 MXN
 - Carnitas, Aguacate & Queso (Triple): $119 MXN
-- Adobada & Aguacate: $109 MXN  <-- (OJO: Adobada con aguacate cuesta $109 MXN)
 - Adobada & Queso: $109 MXN
 - Adobada, Aguacate & Queso (Triple): $119 MXN
 - Top Sirloin & Aguacate: $119 MXN
@@ -38,13 +38,15 @@ CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
 - Jamón & Aguacate: $89 MXN
 - Queso & Aguacate: $89 MXN
 
-🥖 3. LONCHES SENCILLOS:
-- Queso: $79 MXN
-- Jamón: $79 MXN
-- Aguacate: $79 MXN
-- Adobada sencillo: $95 MXN
-- Carnitas sencillo: $99 MXN
-- Top Sirloin sencillo: $109 MXN
+🥖 3. LONCHES SENCILLOS (LOS MÁS ECONÓMICOS DESDE $79 MXN):
+- Los lonches MÁS BARATOS son los sencillos de $79 MXN:
+  * Lonche de Queso: $79 MXN
+  * Lonche de Jamón: $79 MXN
+  * Lonche de Aguacate: $79 MXN
+- Otros lonches sencillos:
+  * Lonche de Adobada sencillo: $95 MXN
+  * Lonche de Carnitas sencillo: $99 MXN
+  * Lonche de Top Sirloin sencillo: $109 MXN
 
 🍔 4. COME BURGER (HAMBURGUESAS):
 * Nota: Todas las hamburguesas llevan lechuga, tomate, cebolla, chile curtido, mayonesa, mostaza, aderezo de chipotle y ketchup.
