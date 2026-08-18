@@ -11,19 +11,37 @@ let genAI = null;
 let openaiClient = null;
 
 function getOpenAIClient() {
-  const key = config.openaiApiKey || process.env.OPENAI_API_KEY;
-  if (!openaiClient && key && key.startsWith('sk-')) {
-    openaiClient = new OpenAI({ apiKey: key });
+  const keys = [
+    config.openaiApiKey,
+    process.env.OPENAI_API_KEY,
+    config.geminiApiKey,
+    process.env.GEMINI_API_KEY,
+    process.env.API_KEY,
+  ];
+  const validKey = keys.find(k => k && typeof k === 'string' && k.startsWith('sk-'));
+  if (validKey) {
+    if (!openaiClient) {
+      openaiClient = new OpenAI({ apiKey: validKey });
+    }
+    return openaiClient;
   }
-  return openaiClient;
+  return null;
 }
 
 function getGoogleGenAI() {
-  const key = config.geminiApiKey || process.env.GEMINI_API_KEY;
-  if (!genAI && key && key !== 'tu_gemini_api_key_aqui') {
-    genAI = new GoogleGenerativeAI(key);
+  const keys = [
+    config.geminiApiKey,
+    process.env.GEMINI_API_KEY,
+    process.env.API_KEY,
+  ];
+  const validKey = keys.find(k => k && typeof k === 'string' && !k.startsWith('sk-') && k !== 'tu_gemini_api_key_aqui');
+  if (validKey) {
+    if (!genAI) {
+      genAI = new GoogleGenerativeAI(validKey);
+    }
+    return genAI;
   }
-  return genAI;
+  return null;
 }
 
 /**
