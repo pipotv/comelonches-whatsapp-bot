@@ -4,7 +4,8 @@ export const BUSINESS_KNOWLEDGE = `
 INFORMACIÓN OFICIAL DE COMELONCHES:
 - Nombre: Comelonches
 - Eslogan: The Comunity of Lonche's
-- Horario de Atención: Martes a Domingo de 12:00 PM a 6:00 PM (Lunes CERRADO).
+- Horario de Atención: Martes a Domingo de 12:00 PM a 6:00 PM.
+- LUNES CERRADO: Todos los lunes estamos TOTALMENTE CERRADOS por descanso (no se atiende ni se reciben pedidos los lunes).
 - Ubicación / Dirección: Blvd. de la Senda 381, Local 14, Residencial Senderos (Justo frente al restaurante San Miguel).
 - Teléfono / WhatsApp: 8713966067
 - Página Web Oficial y Pedidos en línea: https://www.comelonches.com (o www.comelonches.com)
