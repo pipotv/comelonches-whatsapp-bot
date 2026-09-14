@@ -63,14 +63,29 @@ function getUserHistory(userId) {
 
 /**
  * Obtiene el estado operativo actual (día y hora en zona horaria de La Laguna)
+ * Inmune a diferencias de locale en servidores Linux/Docker
  */
 export function getBusinessStatus() {
   const now = new Date();
-  const options = { timeZone: 'America/Monterrey' };
-  const weekday = now.toLocaleDateString('es-MX', { ...options, weekday: 'long' }).toLowerCase();
-  const timeStr = now.toLocaleTimeString('es-MX', { ...options, hour: '2-digit', minute: '2-digit' });
-  const isMonday = weekday.includes('lunes');
-  return { weekday, timeStr, isMonday };
+  
+  // Detección universal del día en La Laguna (independiente de locale del SO)
+  let weekdayEn = 'Mon';
+  try {
+    weekdayEn = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Monterrey', weekday: 'short' }).format(now);
+  } catch (e) {
+    weekdayEn = 'Mon';
+  }
+  
+  const isMonday = weekdayEn === 'Mon';
+
+  let timeStr = '12:00 PM';
+  try {
+    timeStr = now.toLocaleTimeString('es-MX', { timeZone: 'America/Monterrey', hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    timeStr = now.toTimeString().substring(0, 5);
+  }
+
+  return { weekday: isMonday ? 'Lunes' : weekdayEn, timeStr, isMonday };
 }
 
 /**
@@ -88,10 +103,10 @@ ${BUSINESS_KNOWLEDGE}
 DÍA Y HORA ACTUAL: ${weekday.toUpperCase()}, ${timeStr} (Hora de La Laguna).
 Nombre del cliente: ${userName || 'Cliente'}.
 ${isMonday ? `
-🚨 AVISO MUY IMPORTANTE DE HOY LUNES:
-- ¡HOY ES LUNES Y ESTAMOS CERRADOS! (Los lunes descansamos para recargar pilas).
-- NO se pueden tomar pedidos para hoy.
-- En CUALQUIER respuesta que des hoy (si preguntan menú, precios o quieren ordenar), DEBES recordar amablemente que hoy lunes estamos cerrados, pero con muchísimo gusto los esperamos mañana martes a partir de las 12:00 PM (horario: Martes a Domingo de 12:00 PM a 6:00 PM).
+🚨 REGLA SUPREMA DE HOY (LUNES):
+- ¡HOY ES LUNES Y ESTAMOS TOTALMENTE CERRADOS!
+- ESTÁ TERMINANTEMENTE PROHIBIDO DECIR QUE ESTAMOS ABIERTOS O QUE SE PUEDEN HACER PEDIDOS HOY.
+- En cualquier respuesta debes aclarar con amabilidad que HOY LUNES ESTAMOS CERRADOS por descanso, pero que mañana martes abrimos a las 12:00 PM (horario: Martes a Domingo de 12:00 PM a 6:00 PM).
 - Invítalos a checar el menú en www.comelonches.com para que lo conozcan.
 ` : ''}
 
@@ -278,17 +293,33 @@ function isPureGreeting(text) {
   return greetingPatterns.includes(normalized);
 }
 
+function isAskingIfOpenOrOrdering(text) {
+  const norm = text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+  const openKeywords = [
+    'abierto', 'abiertos', 'abren', 'abren hoy', 'estan abiertos', 'estan abierto',
+    'esta abierto', 'estan dando servicio', 'hay servicio', 'tienen servicio',
+    'horario', 'a que hora', 'cierran', 'hasta que hora', 'puedo ordenar', 'puedo pedir'
+  ];
+
+  return openKeywords.some(kw => norm.includes(kw));
+}
+
 /**
  * Función principal para generar respuesta de IA (admite OpenAI y Gemini con fallback)
  */
 export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
   const cleanMsg = (userMessage || '').trim();
+  const { isMonday } = getBusinessStatus();
 
-  // Si es un saludo puro, siempre entregar la bienvenida completa, cálida y profesional
+  // 1. Si es un saludo puro, entregar la bienvenida adecuada según el día
   if (isPureGreeting(cleanMsg)) {
     // Reiniciar historial para empezar fresco
     chatHistories.delete(userId);
-    const { isMonday } = getBusinessStatus();
     const greetingReply = isMonday
       ? (
           `¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!\n\n` +
@@ -309,6 +340,20 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
     getUserHistory(userId).push({ role: 'user', content: cleanMsg });
     getUserHistory(userId).push({ role: 'assistant', content: greetingReply });
     return greetingReply;
+  }
+
+  // 2. Si es lunes y preguntan si está abierto, horarios o si pueden pedir hoy
+  if (isMonday && isAskingIfOpenOrOrdering(cleanMsg)) {
+    const mondayReply = (
+      `¡Hola, ${userName}! 🥖 Te comento con cariño que hoy *LUNES estamos cerrados* descansando para recargar pilas 🚫😴.\n\n` +
+      `¡Con muchísimo gusto te esperamos mañana *martes a partir de las 12:00 PM* (nuestro horario es de Martes a Domingo de 12:00 PM a 6:00 PM)!\n\n` +
+      `Puedes ir revisando todo nuestro menú y precios en nuestra página web:\n` +
+      `👉 *www.comelonches.com*\n\n` +
+      `¡Mañana te preparamos tus lonches bien calientitos!`
+    );
+    getUserHistory(userId).push({ role: 'user', content: cleanMsg });
+    getUserHistory(userId).push({ role: 'assistant', content: mondayReply });
+    return mondayReply;
   }
 
   const hasOpenAi = !!(config.openaiApiKey && config.openaiApiKey.startsWith('sk-'));
