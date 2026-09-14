@@ -62,16 +62,38 @@ function getUserHistory(userId) {
 }
 
 /**
+ * Obtiene el estado operativo actual (día y hora en zona horaria de La Laguna)
+ */
+export function getBusinessStatus() {
+  const now = new Date();
+  const options = { timeZone: 'America/Monterrey' };
+  const weekday = now.toLocaleDateString('es-MX', { ...options, weekday: 'long' }).toLowerCase();
+  const timeStr = now.toLocaleTimeString('es-MX', { ...options, hour: '2-digit', minute: '2-digit' });
+  const isMonday = weekday.includes('lunes');
+  return { weekday, timeStr, isMonday };
+}
+
+/**
  * Crea el prompt de sistema oficial y limpio de Comelonches
  */
 function getSystemPrompt(userName = 'Cliente') {
+  const { weekday, timeStr, isMonday } = getBusinessStatus();
+
   return `
 Eres "Lonchy", el asistente virtual oficial de "${config.business.name}".
 Tu misión es atender a los clientes en WhatsApp de forma cálida, amable, clara y muy servicial, guiándolos siempre con amabilidad a pedir por nuestra página web oficial.
 
 ${BUSINESS_KNOWLEDGE}
 
+DÍA Y HORA ACTUAL: ${weekday.toUpperCase()}, ${timeStr} (Hora de La Laguna).
 Nombre del cliente: ${userName || 'Cliente'}.
+${isMonday ? `
+🚨 AVISO MUY IMPORTANTE DE HOY LUNES:
+- ¡HOY ES LUNES Y ESTAMOS CERRADOS! (Los lunes descansamos para recargar pilas).
+- NO se pueden tomar pedidos para hoy.
+- En CUALQUIER respuesta que des hoy (si preguntan menú, precios o quieren ordenar), DEBES recordar amablemente que hoy lunes estamos cerrados, pero con muchísimo gusto los esperamos mañana martes a partir de las 12:00 PM (horario: Martes a Domingo de 12:00 PM a 6:00 PM).
+- Invítalos a checar el menú en www.comelonches.com para que lo conozcan.
+` : ''}
 
 PAUTAS DE ATENCIÓN Y PERSUASIÓN SUTIL:
 1. **Saludo Inicial:** Cuando el cliente salude ("Hola", "Buenas tardes", etc.), responde con calidez y simpatía, preséntate como Lonchy de Comelonches, ofrécele consultar el menú y ordenar en línea.
@@ -86,7 +108,7 @@ PAUTAS DE ATENCIÓN Y PERSUASIÓN SUTIL:
 
 ESTRUCTURA EXACTA DE MENSAJES (Sigue este tono y formato):
 
-Ejemplo 1 (Saludo):
+Ejemplo 1 (Saludo en día regular de Martes a Domingo):
 "¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!
 
 Estoy aquí para ayudarte con nuestro menú y resolver tus dudas. 😊
@@ -95,6 +117,13 @@ Para que tu pedido entre directo a nuestro sistema de cocina y lo tengamos listo
 👉 *www.comelonches.com*
 
 ¿En qué puedo ayudarte hoy?"
+
+Ejemplo 1B (Cuando preguntan o quieren pedir en LUNES CERRADO):
+"¡Hola, ${userName}! Te comento con cariño que hoy **lunes estamos cerrados** descansando 🚫😴, pero con muchísimo gusto te esperamos mañana **martes de 12:00 PM a 6:00 PM**.
+
+Puedes ir conociendo todo nuestro menú y planear tu pedido en: 👉 *www.comelonches.com*
+
+¡Mañana te lo preparamos bien calientito!"
 
 Ejemplo 2 (Pregunta de Horarios):
 "¡Hola, ${userName}! Nuestro horario de atención es:
@@ -259,13 +288,23 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
   if (isPureGreeting(cleanMsg)) {
     // Reiniciar historial para empezar fresco
     chatHistories.delete(userId);
-    const greetingReply = (
-      `¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!\n\n` +
-      `Estoy aquí para ayudarte con nuestro menú y resolver todas tus dudas. 😊\n\n` +
-      `Para que tu pedido entre directo a nuestro sistema de cocina y lo tengamos listo calientito en cuanto llegues, te recomendamos ordenar en línea desde nuestra página:\n` +
-      `👉 *www.comelonches.com*\n\n` +
-      `¿En qué puedo ayudarte hoy?`
-    );
+    const { isMonday } = getBusinessStatus();
+    const greetingReply = isMonday
+      ? (
+          `¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!\n\n` +
+          `Te comento con cariño que hoy *LUNES estamos cerrados* descansando 🚫😴, pero con muchísimo gusto te esperamos mañana *martes a partir de las 12:00 PM*.\n\n` +
+          `Puedes ir conociendo todo nuestro menú y planear tu pedido en nuestra página web:\n` +
+          `👉 *www.comelonches.com*\n\n` +
+          `¿Tienes alguna duda sobre nuestros lonches o precios? ¡Aquí estoy para ayudarte! 😊`
+        )
+      : (
+          `¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!\n\n` +
+          `Estoy aquí para ayudarte con nuestro menú y resolver todas tus dudas. 😊\n\n` +
+          `Para que tu pedido entre directo a nuestro sistema de cocina y lo tengamos listo calientito en cuanto llegues, te recomendamos ordenar en línea desde nuestra página:\n` +
+          `👉 *www.comelonches.com*\n\n` +
+          `¿En qué puedo ayudarte hoy?`
+        );
+
     // Registrar en historial
     getUserHistory(userId).push({ role: 'user', content: cleanMsg });
     getUserHistory(userId).push({ role: 'assistant', content: greetingReply });
