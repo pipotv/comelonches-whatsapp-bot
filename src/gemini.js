@@ -126,11 +126,10 @@ PAUTAS DE ATENCIÓN Y PERSUASIÓN SUTIL:
 5. **REGLA CRÍTICA DE COMANDAS Y PEDIDOS YA REALIZADOS EN LA WEB:**
    - Si el cliente envía o comparte un ticket o comanda de pedido (ej. "NUEVO PEDIDO — COME LONCHE'S"), **NUNCA le pidas que vuelva a hacer el pedido en la web**, porque ¡EL CLIENTE YA LO HIZO!
    - En su lugar: Agradécele con entusiasmo, confirma que su orden fue recibida en cocina para tenerla lista a su hora de recogida en la sucursal (Blvd. de la Senda 381, Local 14).
-   - Si el cliente ya envió su pedido y hace preguntas posteriores (como "¿dónde están?", "¿aceptan tarjeta?"), respóndele directamente sin volver a invitarlo a hacer un pedido.
-6. **SOLICITUD DE MENÚ O FOTO DEL MENÚ:**
-   - Si el cliente pide el menú o foto de la carta ("me pasas foto de tu menú", "tienen menú", etc.):
+6. **SOLICITUD DE MENÚ O CARTA:**
+   - Si el cliente pide el menú o foto de la carta ("me pasas el menú", "tienen menú", "foto del menú", etc.):
    - **NUNCA digas "lamentablemente no puedo enviar fotos" ni uses tono de disculpa.**
-   - Invítalo con entusiasmo a consultar nuestro **menú completo con fotos, ingredientes y precios** directamente en nuestra página web: 👉 *www.comelonches.com*.
+   - Indícale con amabilidad y entusiasmo que **nuestro menú completo, todos los productos, ingredientes y precios actualizados se encuentran en nuestra página web**: 👉 *www.comelonches.com*.
 7. **Formato:** Mantén las respuestas bien estructuradas, con emojis agradables, precios en **negritas** y el enlace destacado 👉 *www.comelonches.com*.
 
 ESTRUCTURA EXACTA DE MENSAJES (Sigue este tono y formato):
@@ -211,8 +210,8 @@ Ejemplo 9 (Cuando el cliente envía su comanda / NUEVO PEDIDO de la página web)
 
 ¡Ya lo mandamos a la plancha para tenerlo listo a tu llegada! ¡Buen provecho! 😊✨"
 
-Ejemplo 10 (Pregunta por el menú o foto del menú):
-"¡Hola, ${userName}! 🥖✨ Puedes consultar nuestro **menú completo con fotos, ingredientes y precios** directamente en nuestra página web:
+Ejemplo 10 (Pregunta por el menú o productos):
+"¡Hola, ${userName}! 🥖✨ Puedes consultar nuestro **menú completo, todos nuestros productos y precios actualizados** directamente en nuestra página web:
 
 👉 *www.comelonches.com*
 
@@ -413,10 +412,10 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
     return orderReply;
   }
 
-  // 2. Si el cliente pide el menú o foto del menú
+  // 2. Si el cliente pide el menú o productos
   if (isAskingForMenuOrPhoto(cleanMsg)) {
     const menuReply = (
-      `¡Hola, ${userName}! 🥖✨ Puedes consultar nuestro **menú completo con fotos de cada lonche, ingredientes y precios actualizados** directamente en nuestra página web:\n\n` +
+      `¡Hola, ${userName}! 🥖✨ Puedes consultar nuestro **menú completo, todos nuestros productos y precios actualizados** directamente en nuestra página web:\n\n` +
       `👉 *www.comelonches.com*\n\n` +
       `Desde ahí mismo puedes hacer tu pedido para que pase directo al sistema de cocina y te lo tengamos listo calientito en cuanto pases por él. 😋\n\n` +
       `¿Te gustaría saber los ingredientes o precio de algún lonche en específico? Con gusto te ayudo. 😊`
