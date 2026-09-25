@@ -123,6 +123,10 @@ export async function startWhatsAppBot() {
       }
     });
 
+    // Buffer de mensajes entrantes por usuario para agrupar ráfagas rápidas (ej. "Hola" y luego "buenas tardes")
+    const userMessageBuffers = new Map();
+    const DEBOUNCE_WAIT_MS = 2500; // Espera 2.5 segundos tras el último mensaje para responder una sola vez
+
     // Manejador de mensajes entrantes
     sock.ev.on('messages.upsert', async (m) => {
       // Solo nos interesan mensajes nuevos en tiempo real ('notify')
@@ -137,9 +141,8 @@ export async function startWhatsAppBot() {
         // Ignorar actualizaciones de estados o broadcasts
         if (!jid || jid === 'status@broadcast') continue;
 
-        // Si es un grupo, opcionalmente ignorar para solo responder chats individuales
+        // Si es un grupo, ignorar para solo responder chats individuales
         if (jid.endsWith('@g.us')) {
-          // Ignorar mensajes de grupo por defecto para no saturar grupos
           continue;
         }
 
@@ -164,27 +167,54 @@ export async function startWhatsAppBot() {
         botState.messagesCount++;
         botState.lastActivity = new Date().toLocaleTimeString();
 
-        try {
-          // 1. Indicar que el bot está escribiendo
-          await sock.sendPresenceUpdate('composing', jid);
-
-          // 2. Pequeño retardo natural para simular escritura humana
-          if (config.bot.typingDelayMs > 0) {
-            await new Promise((resolve) => setTimeout(resolve, config.bot.typingDelayMs));
-          }
-
-          // 3. Obtener respuesta inteligente desde Gemini AI
-          const replyText = await getAiResponse(jid, cleanText, senderName);
-
-          // 4. Detener indicador de escribiendo
-          await sock.sendPresenceUpdate('paused', jid);
-
-          // 5. Enviar mensaje de respuesta al cliente
-          await sock.sendMessage(jid, { text: replyText });
-          addBotLog(`🤖 Respuesta enviada a ${senderName}: "${replyText.substring(0, 60)}..."`);
-        } catch (error) {
-          console.error(`❌ Error enviando respuesta a ${jid}:`, error);
+        // Obtener o crear buffer para este usuario
+        if (!userMessageBuffers.has(jid)) {
+          userMessageBuffers.set(jid, {
+            messages: [],
+            senderName,
+            timer: null,
+          });
         }
+
+        const buffer = userMessageBuffers.get(jid);
+        buffer.messages.push(cleanText);
+        if (senderName && senderName !== 'Cliente') {
+          buffer.senderName = senderName;
+        }
+
+        // Cancelar el temporizador anterior si el usuario sigue enviando mensajes
+        if (buffer.timer) {
+          clearTimeout(buffer.timer);
+        }
+
+        // Programar procesamiento agrupado tras 2.5 segundos de inactividad
+        buffer.timer = setTimeout(async () => {
+          userMessageBuffers.delete(jid);
+          const fullMessageText = buffer.messages.join('\n').trim();
+          const finalSenderName = buffer.senderName || 'Cliente';
+
+          try {
+            // 1. Indicar que el bot está escribiendo
+            await sock.sendPresenceUpdate('composing', jid);
+
+            // 2. Pequeño retardo natural para simular escritura humana
+            if (config.bot.typingDelayMs > 0) {
+              await new Promise((resolve) => setTimeout(resolve, config.bot.typingDelayMs));
+            }
+
+            // 3. Obtener respuesta de IA (procesando el mensaje completo agrupado)
+            const replyText = await getAiResponse(jid, fullMessageText, finalSenderName);
+
+            // 4. Detener indicador de escribiendo
+            await sock.sendPresenceUpdate('paused', jid);
+
+            // 5. Enviar mensaje de respuesta único al cliente
+            await sock.sendMessage(jid, { text: replyText });
+            addBotLog(`🤖 Respuesta enviada a ${finalSenderName}: "${replyText.substring(0, 60)}..."`);
+          } catch (error) {
+            console.error(`❌ Error enviando respuesta a ${jid}:`, error);
+          }
+        }, DEBOUNCE_WAIT_MS);
       }
     });
   } catch (error) {

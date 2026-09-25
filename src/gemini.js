@@ -45,20 +45,24 @@ function getGoogleGenAI() {
 }
 
 /**
- * Obtiene el historial de mensajes formateado para un usuario
+ * Obtiene la sesión activa y el historial de mensajes de un usuario
  */
-function getUserHistory(userId) {
+function getUserSession(userId) {
   const now = Date.now();
   if (chatHistories.has(userId)) {
     const session = chatHistories.get(userId);
     if (now - session.lastActivity < SESSION_TIMEOUT_MS) {
       session.lastActivity = now;
-      return session.messages;
+      return session;
     }
   }
-  const newMessages = [];
-  chatHistories.set(userId, { messages: newMessages, lastActivity: now });
-  return newMessages;
+  const newSession = { messages: [], lastActivity: now, lastGreetingAt: 0 };
+  chatHistories.set(userId, newSession);
+  return newSession;
+}
+
+function getUserHistory(userId) {
+  return getUserSession(userId).messages;
 }
 
 /**
@@ -96,7 +100,7 @@ function getSystemPrompt(userName = 'Cliente') {
 
   return `
 Eres "Lonchy", el asistente virtual oficial de "${config.business.name}".
-Tu misión es atender a los clientes en WhatsApp de forma cálida, amable, clara y muy servicial, guiándolos siempre con amabilidad a pedir por nuestra página web oficial.
+Tu misión es atender a los clientes en WhatsApp de forma cálida, amable, clara y muy servicial, guiándolos siempre con amabilidad a pedir por nuestra página web oficial cuando aún no han pedido.
 
 ${BUSINESS_KNOWLEDGE}
 
@@ -119,7 +123,11 @@ PAUTAS DE ATENCIÓN Y PERSUASIÓN SUTIL:
 4. **REGLA DE ORO DEL PAN (OBLIGATORIA Y ESTRICTA):**
    - Siempre que pregunten "¿Qué pan usan?", "¿De cuál pan es?", "¿Qué tipo de pan usan?" o cualquier duda sobre el pan, **ES OBLIGATORIO** responder explícitamente: **Pan Francés de La Laguna** (doradito y calientito a la plancha).
    - NUNCA uses frases genéricas como "pan fresco", y **PROHIBIDO TOTALMENTE** decir "bolillo", "telera" o "birote". Es **100% Pan Francés Lagunero**.
-5. **Formato:** Mantén las respuestas bien estructuradas, con emojis agradables, precios en **negritas** y el enlace destacado 👉 *www.comelonches.com*.
+5. **REGLA CRÍTICA DE COMANDAS Y PEDIDOS YA REALIZADOS EN LA WEB:**
+   - Si el cliente envía o comparte un ticket o comanda de pedido (ej. "NUEVO PEDIDO — COME LONCHE'S"), **NUNCA le pidas que vuelva a hacer el pedido en la web**, porque ¡EL CLIENTE YA LO HIZO!
+   - En su lugar: Agradécele con entusiasmo, confirma que su orden fue recibida en cocina para tenerla lista a su hora de recogida en la sucursal (Blvd. de la Senda 381, Local 14).
+   - Si el cliente ya envió su pedido y hace preguntas posteriores (como "¿dónde están?", "¿aceptan tarjeta?"), respóndele directamente sin volver a invitarlo a hacer un pedido.
+6. **Formato:** Mantén las respuestas bien estructuradas, con emojis agradables, precios en **negritas** y el enlace destacado 👉 *www.comelonches.com*.
 
 ESTRUCTURA EXACTA DE MENSAJES (Sigue este tono y formato):
 
@@ -187,6 +195,17 @@ Ejemplo 8 (Pregunta de Ubicación o Domicilio):
 No contamos con servicio a domicilio, pero puedes hacer tu pedido en línea para que entre directo a cocina y pasar a recogerlo listo: 👉 *www.comelonches.com*
 
 ¡Te esperamos! 😊"
+
+Ejemplo 9 (Cuando el cliente envía su comanda / NUEVO PEDIDO de la página web):
+"¡Muchas gracias por tu pedido, Sabine! 🥖🎉
+
+✅ Hemos recibido tu comanda con éxito en nuestro sistema de cocina.
+⏰ Hora estimada de recogida: 14:15
+💵 Total a pagar: $417
+📍 Te esperamos para entregártelo calientito en:
+*Blvd. de la Senda 381, Local 14, Residencial Senderos* (frente al restaurante San Miguel).
+
+¡Ya lo mandamos a la plancha para tenerlo listo a tu llegada! ¡Buen provecho! 😊✨"
 `;
 }
 
@@ -277,20 +296,51 @@ async function getGeminiResponse(userId, userMessage, userName = 'Cliente') {
   return null;
 }
 
+function isWebsiteOrderTicket(text) {
+  const upper = text.toUpperCase();
+  return (
+    (upper.includes('NUEVO PEDIDO') && (upper.includes('COME LONCHE') || upper.includes('HORA DE RECOGIDA') || upper.includes('PRODUCTOS:'))) ||
+    (upper.includes('HORA DE RECOGIDA:') && upper.includes('TOTAL:')) ||
+    (upper.includes('NUEVO PEDIDO') && upper.includes('TOTAL:'))
+  );
+}
+
+function handleWebsiteOrderTicket(text, senderName) {
+  const clientMatch = text.match(/(?:Cliente|Nombre):\s*([^\n\r]+)/i);
+  const timeMatch = text.match(/Hora de Recogida:\s*([^\n\r]+)/i);
+  const totalMatch = text.match(/TOTAL:\s*([^\n\r]+)/i);
+
+  const clientName = clientMatch ? clientMatch[1].trim() : (senderName && senderName !== 'Cliente' ? senderName : 'Cliente');
+  const pickupTime = timeMatch ? timeMatch[1].trim() : null;
+  const total = totalMatch ? totalMatch[1].trim() : null;
+
+  return (
+    `¡Muchas gracias por tu pedido, *${clientName}*! 🥖🎉\n\n` +
+    `✅ *Hemos recibido tu comanda en nuestro sistema con éxito.*\n` +
+    (pickupTime ? `⏰ *Hora estimada de recogida:* ${pickupTime}\n` : '') +
+    (total ? `💵 *Total a pagar:* ${total}\n` : '') +
+    `📍 *Lugar de entrega:* Blvd. de la Senda 381, Local 14, Residencial Senderos (Frente a restaurante San Miguel).\n\n` +
+    `👨‍🍳 Ya tenemos tu orden programada en la cocina para que tus lonches estén recién hechos y calientitos a tu llegada.\n\n` +
+    `¡Muchas gracias por tu preferencia! Si necesitas hacer algún cambio o tienes alguna indicación especial sobre tus lonches, avísanos con toda confianza por aquí. 😊✨`
+  );
+}
+
 function isPureGreeting(text) {
   const normalized = text
     .toLowerCase()
     .trim()
-    .replace(/[!¡?¿.,]/g, '')
+    .replace(/[!¡?¿.,\n\r]/g, ' ')
+    .replace(/\s+/g, ' ')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, ''); // Quita acentos (dias -> dias)
     
   const greetingPatterns = [
     'hola', 'buenos dias', 'buen dia', 'buenas tardes', 'buenas noches',
     'hola buenos dias', 'hola buen dia', 'hola buenas tardes', 'hola buenas noches',
-    'hola buenas', 'buenas', 'que tal', 'hola que tal', 'hey', 'saludos', 'hola lonchy'
+    'hola buenas', 'buenas', 'que tal', 'hola que tal', 'hey', 'saludos', 'hola lonchy',
+    'hola buenas tardes', 'hola buenas noches', 'hola buenos dias'
   ];
-  return greetingPatterns.includes(normalized);
+  return greetingPatterns.includes(normalized.trim());
 }
 
 function isAskingIfOpenOrOrdering(text) {
@@ -315,11 +365,33 @@ function isAskingIfOpenOrOrdering(text) {
 export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
   const cleanMsg = (userMessage || '').trim();
   const { isMonday } = getBusinessStatus();
+  const session = getUserSession(userId);
 
-  // 1. Si es un saludo puro, entregar la bienvenida adecuada según el día
+  // 1. Si el cliente envía una comanda o ticket de pedido de la página web (NUEVO PEDIDO)
+  if (isWebsiteOrderTicket(cleanMsg)) {
+    const orderReply = handleWebsiteOrderTicket(cleanMsg, userName);
+    session.messages.push({ role: 'user', content: cleanMsg });
+    session.messages.push({ role: 'assistant', content: orderReply });
+    session.hasActiveOrder = true;
+    return orderReply;
+  }
+
+  // 2. Si es un saludo puro, entregar la bienvenida adecuada sin duplicar
   if (isPureGreeting(cleanMsg)) {
-    // Reiniciar historial para empezar fresco
-    chatHistories.delete(userId);
+    const now = Date.now();
+    const greetedRecently = session.lastGreetingAt && (now - session.lastGreetingAt < 10 * 60 * 1000);
+    session.lastGreetingAt = now;
+
+    // Si ya lo saludamos hace menos de 10 minutos, responder cortésmente sin repetir todo el discurso
+    if (greetedRecently) {
+      const shortReply = `¡Hola de nuevo, ${userName}! 😊 ¿En qué te podemos ayudar? ¿Deseas consultar algún lonche, precio o tienes alguna duda?`;
+      session.messages.push({ role: 'user', content: cleanMsg });
+      session.messages.push({ role: 'assistant', content: shortReply });
+      return shortReply;
+    }
+
+    // Si es primera vez o nueva conversación, saludo oficial completo
+    session.messages = []; // Reiniciar mensajes para saludo fresco
     const greetingReply = isMonday
       ? (
           `¡Hola, ${userName}! 👋 Soy Lonchy, tu asistente virtual de Comelonches. ¡Es un gusto saludarte!\n\n` +
@@ -336,13 +408,12 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
           `¿En qué puedo ayudarte hoy?`
         );
 
-    // Registrar en historial
-    getUserHistory(userId).push({ role: 'user', content: cleanMsg });
-    getUserHistory(userId).push({ role: 'assistant', content: greetingReply });
+    session.messages.push({ role: 'user', content: cleanMsg });
+    session.messages.push({ role: 'assistant', content: greetingReply });
     return greetingReply;
   }
 
-  // 2. Si es lunes y preguntan si está abierto, horarios o si pueden pedir hoy
+  // 3. Si es lunes y preguntan si está abierto, horarios o si pueden pedir hoy
   if (isMonday && isAskingIfOpenOrOrdering(cleanMsg)) {
     const mondayReply = (
       `¡Hola, ${userName}! 🥖 Te comento con cariño que hoy *LUNES estamos cerrados* descansando para recargar pilas 🚫😴.\n\n` +
@@ -351,8 +422,8 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
       `👉 *www.comelonches.com*\n\n` +
       `¡Mañana te preparamos tus lonches bien calientitos!`
     );
-    getUserHistory(userId).push({ role: 'user', content: cleanMsg });
-    getUserHistory(userId).push({ role: 'assistant', content: mondayReply });
+    session.messages.push({ role: 'user', content: cleanMsg });
+    session.messages.push({ role: 'assistant', content: mondayReply });
     return mondayReply;
   }
 
