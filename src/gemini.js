@@ -127,7 +127,11 @@ PAUTAS DE ATENCIÓN Y PERSUASIÓN SUTIL:
    - Si el cliente envía o comparte un ticket o comanda de pedido (ej. "NUEVO PEDIDO — COME LONCHE'S"), **NUNCA le pidas que vuelva a hacer el pedido en la web**, porque ¡EL CLIENTE YA LO HIZO!
    - En su lugar: Agradécele con entusiasmo, confirma que su orden fue recibida en cocina para tenerla lista a su hora de recogida en la sucursal (Blvd. de la Senda 381, Local 14).
    - Si el cliente ya envió su pedido y hace preguntas posteriores (como "¿dónde están?", "¿aceptan tarjeta?"), respóndele directamente sin volver a invitarlo a hacer un pedido.
-6. **Formato:** Mantén las respuestas bien estructuradas, con emojis agradables, precios en **negritas** y el enlace destacado 👉 *www.comelonches.com*.
+6. **SOLICITUD DE MENÚ O FOTO DEL MENÚ:**
+   - Si el cliente pide el menú o foto de la carta ("me pasas foto de tu menú", "tienen menú", etc.):
+   - **NUNCA digas "lamentablemente no puedo enviar fotos" ni uses tono de disculpa.**
+   - Invítalo con entusiasmo a consultar nuestro **menú completo con fotos, ingredientes y precios** directamente en nuestra página web: 👉 *www.comelonches.com*.
+7. **Formato:** Mantén las respuestas bien estructuradas, con emojis agradables, precios en **negritas** y el enlace destacado 👉 *www.comelonches.com*.
 
 ESTRUCTURA EXACTA DE MENSAJES (Sigue este tono y formato):
 
@@ -206,6 +210,15 @@ Ejemplo 9 (Cuando el cliente envía su comanda / NUEVO PEDIDO de la página web)
 *Blvd. de la Senda 381, Local 14, Residencial Senderos* (frente al restaurante San Miguel).
 
 ¡Ya lo mandamos a la plancha para tenerlo listo a tu llegada! ¡Buen provecho! 😊✨"
+
+Ejemplo 10 (Pregunta por el menú o foto del menú):
+"¡Hola, ${userName}! 🥖✨ Puedes consultar nuestro **menú completo con fotos, ingredientes y precios** directamente en nuestra página web:
+
+👉 *www.comelonches.com*
+
+Desde ahí mismo puedes hacer tu pedido para que pase directo al sistema de cocina y te lo tengamos listo calientito en cuanto pases por él. 😋
+
+¿Te gustaría saber los ingredientes o precio de algún lonche en específico? Con gusto te ayudo. 😊"
 `;
 }
 
@@ -359,6 +372,30 @@ function isAskingIfOpenOrOrdering(text) {
   return openKeywords.some(kw => norm.includes(kw));
 }
 
+function isAskingForMenuOrPhoto(text) {
+  const norm = text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+  return (
+    (norm.includes('foto') && (norm.includes('menu') || norm.includes('carta'))) ||
+    norm.includes('pasar foto') ||
+    norm.includes('pasar el menu') ||
+    norm.includes('pasame el menu') ||
+    norm.includes('pasan el menu') ||
+    norm.includes('pasar tu menu') ||
+    norm.includes('ver el menu') ||
+    norm.includes('su menu') ||
+    norm.includes('tienen menu') ||
+    norm.includes('mandar el menu') ||
+    norm.includes('mandar tu menu') ||
+    norm.includes('manda el menu') ||
+    norm.includes('compartir el menu')
+  );
+}
+
 /**
  * Función principal para generar respuesta de IA (admite OpenAI y Gemini con fallback)
  */
@@ -376,7 +413,20 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
     return orderReply;
   }
 
-  // 2. Si es un saludo puro, entregar la bienvenida adecuada sin duplicar
+  // 2. Si el cliente pide el menú o foto del menú
+  if (isAskingForMenuOrPhoto(cleanMsg)) {
+    const menuReply = (
+      `¡Hola, ${userName}! 🥖✨ Puedes consultar nuestro **menú completo con fotos de cada lonche, ingredientes y precios actualizados** directamente en nuestra página web:\n\n` +
+      `👉 *www.comelonches.com*\n\n` +
+      `Desde ahí mismo puedes hacer tu pedido para que pase directo al sistema de cocina y te lo tengamos listo calientito en cuanto pases por él. 😋\n\n` +
+      `¿Te gustaría saber los ingredientes o precio de algún lonche en específico? Con gusto te ayudo. 😊`
+    );
+    session.messages.push({ role: 'user', content: cleanMsg });
+    session.messages.push({ role: 'assistant', content: menuReply });
+    return menuReply;
+  }
+
+  // 3. Si es un saludo puro, entregar la bienvenida adecuada sin duplicar
   if (isPureGreeting(cleanMsg)) {
     const now = Date.now();
     const greetedRecently = session.lastGreetingAt && (now - session.lastGreetingAt < 10 * 60 * 1000);
@@ -413,7 +463,7 @@ export async function getAiResponse(userId, userMessage, userName = 'Cliente') {
     return greetingReply;
   }
 
-  // 3. Si es lunes y preguntan si está abierto, horarios o si pueden pedir hoy
+  // 4. Si es lunes y preguntan si está abierto, horarios o si pueden pedir hoy
   if (isMonday && isAskingIfOpenOrOrdering(cleanMsg)) {
     const mondayReply = (
       `¡Hola, ${userName}! 🥖 Te comento con cariño que hoy *LUNES estamos cerrados* descansando para recargar pilas 🚫😴.\n\n` +
