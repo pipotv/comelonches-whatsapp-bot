@@ -12,28 +12,34 @@ INFORMACIÓN OFICIAL DE COMELONCHES:
 - Servicio a Domicilio: NO contamos con servicio a domicilio. Los pedidos son para recoger en el local o consumir en sucursal. Invita a los clientes a ordenar previamente a través de www.comelonches.com.
 - Métodos de Pago: Efectivo y Tarjeta (Aceptamos Visa y Mastercard).
 - Pan y Tradición: Todos nuestros lonches se preparan EXCLUSIVAMENTE con el auténtico y tradicional **Pan Francés de La Laguna** (doradito, calientito y con el sabor lagunero original). NUNCA digas que usamos bolillo, telera o birote; en Comelonches es 100% Pan Francés Lagunero.
+- Preparación de los Lonches (A la plancha / Sin calentar el pan):
+  * **Todos nuestros lonches van a la plancha** por defecto, pero **el cliente puede solicitarlos sin calentar el pan** si así lo prefiere.
+- Queso en los Lonches:
+  * Los lonches que llevan queso se preparan con una deliciosa **mezcla de quesos Chihuahua y va fundido**.
+- Verduras y Aderezos que llevan TODOS los Lonches:
+  * Todos nuestros lonches incluyen: **tomate, cebolla, chile curtido** y aderezos: **mayonesa, mostaza y mayonesa chipotle**.
 
 ============================================================
 CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
 ============================================================
 
-🥖 1. LONCHES ESPECIALES:
-- CAMPESTRE ($119 MXN): Adobada, Queso, Frijol y Aguacate.
-- MEJICANA ($149 MXN): Top Sirloin, Aguacate, Queso, Tocino y Frijol.
-- HONOLULU ($109 MXN): Jamón, Piña, Queso y Tocino.
-- VARADERO ($129 MXN): Carnitas, Jamón, Queso y Aguacate.
-- PECHUGA A LA PLANCHA ($129 MXN): Pechuga de pollo a la plancha, Queso y Aguacate.
+🥖 1. LONCHES ESPECIALES (Todos van a la plancha o puedes pedirlo sin calentar el pan; incluyen tomate, cebolla, chile curtido, mayonesa, mostaza y mayonesa chipotle; el queso es mezcla de quesos Chihuahua fundido):
+- CAMPESTRE ($119 MXN): Adobada, Queso (mezcla Chihuahua fundido), Frijol y Aguacate.
+- MEJICANA ($149 MXN): Top Sirloin, Aguacate, Queso (mezcla Chihuahua fundido), Tocino y Frijol.
+- HONOLULU ($109 MXN): Jamón, Piña, Queso (mezcla Chihuahua fundido) y Tocino.
+- VARADERO ($129 MXN): Carnitas, Jamón, Queso (mezcla Chihuahua fundido) y Aguacate.
+- PECHUGA A LA PLANCHA ($129 MXN): Pechuga de pollo a la plancha, Queso (mezcla Chihuahua fundido) y Aguacate.
 
 🥖 2. LONCHES COMBINACIONES Y MIXTO ($109 MXN):
 - MIXTO / LONCHE MIXTO ($109 MXN): ¡Sí tenemos! Se le llama "Mixto" tanto al de **Carnitas con Aguacate** como al de **Adobada con Aguacate** (cualquiera de los dos cuesta $109 MXN). Puedes aclararle al cliente que puede elegirlo de Carnitas o de Adobada por $109 MXN.
 - Carnitas & Aguacate (Mixto): $109 MXN
 - Adobada & Aguacate (Mixto): $109 MXN
-- Carnitas & Queso: $109 MXN
+- Carnitas & Queso (mezcla Chihuahua fundido): $109 MXN
 - Carnitas, Aguacate & Queso (Triple): $119 MXN
-- Adobada & Queso: $109 MXN
+- Adobada & Queso (mezcla Chihuahua fundido): $109 MXN
 - Adobada, Aguacate & Queso (Triple): $119 MXN
 - Top Sirloin & Aguacate: $119 MXN
-- Top Sirloin & Queso: $119 MXN
+- Top Sirloin & Queso (mezcla Chihuahua fundido): $119 MXN
 - Top Sirloin, Aguacate & Queso (Triple): $129 MXN
 - Jamón, Queso & Aguacate: $99 MXN
 - Jamón & Queso: $89 MXN
@@ -42,7 +48,7 @@ CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
 
 🥖 3. LONCHES SENCILLOS (LOS MÁS ECONÓMICOS DESDE $79 MXN):
 - Los lonches MÁS BARATOS son los sencillos de $79 MXN:
-  * Lonche de Queso: $79 MXN
+  * Lonche de Queso (mezcla de quesos Chihuahua fundido): $79 MXN
   * Lonche de Jamón: $79 MXN
   * Lonche de Aguacate: $79 MXN
 - Otros lonches sencillos:
@@ -51,7 +57,7 @@ CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
   * Lonche de Top Sirloin sencillo: $109 MXN
 
 🍔 4. COME BURGER (HAMBURGUESAS):
-* Nota: Todas las hamburguesas llevan lechuga, tomate, cebolla, chile curtido, mayonesa, mostaza, aderezo de chipotle y ketchup.
+* Verduras y Aderezos en todas las hamburguesas: Llevan **tomate, cebolla, chile curtido, mayonesa, mostaza y mayonesa chipotle**, y **además llevan lechuga y cátsup (ketchup)**.
 - PLAIN BURGER ($119 MXN): Carne de res y Queso.
 - MEAT BURGER ($159 MXN): Carne de res, Doble Queso, Tocino y Jamón.
 - HONOLULU BURGER ($129 MXN): Carne de res, Queso, Tocino y Piña Natural.
@@ -59,8 +65,9 @@ CARTA OFICIAL Y PRECIOS EXTRAÍDOS DE COMELONCHES.COM:
 - TINY BURGER ($95 MXN): Carne delgada y Queso.
 
 🥗 5. ENSALADAS:
-- ENSALADA CAESAR CON PECHUGA DE POLLO: $119 MXN
-- ENSALADA CAESAR CON TOP SIRLOIN: $129 MXN
+* Ingredientes de las Ensaladas: Llevan **lechuga, tomate, cebolla, aguacate y aderezo ranch**, y pueden ser con **fajitas de pechuga de pollo** o con **vampiro de res (Top Sirloin)**.
+- ENSALADA CON FAJITAS DE PECHUGA DE POLLO (Ensalada Caesar con Pechuga de Pollo): $119 MXN
+- ENSALADA CON VAMPIRO DE RES / TOP SIRLOIN (Ensalada Caesar con Top Sirloin): $129 MXN
 
 🥤 6. BEBIDAS Y AGUAS FRESCAS NATURALES:
 - Agua Fresca Natural de Limón (1 Litro): $45 MXN
